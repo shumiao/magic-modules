@@ -1,4 +1,4 @@
-package google
+package cloudrun
 
 import (
 	"fmt"
@@ -52,19 +52,19 @@ func getGeneration(res map[string]interface{}) (int, error) {
 func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
 	return func(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
 		if respErr != nil {
-			return ErrorPollResult(respErr)
+			return transport_tpg.ErrorPollResult(respErr)
 		}
 		s := KnativeStatus{}
 		if err := tpgresource.Convert(resp, &s); err != nil {
-			return ErrorPollResult(errwrap.Wrapf("unable to get KnativeStatus: {{err}}", err))
+			return transport_tpg.ErrorPollResult(errwrap.Wrapf("unable to get KnativeStatus: {{err}}", err))
 		}
 
 		gen, err := getGeneration(knativeRestResponse)
 		if err != nil {
-			return ErrorPollResult(errwrap.Wrapf("unable to find Knative generation: {{err}}", err))
+			return transport_tpg.ErrorPollResult(errwrap.Wrapf("unable to find Knative generation: {{err}}", err))
 		}
 		if int(s.Status.ObservedGeneration) < gen {
-			return PendingStatusPollResult("waiting for observed generation to match")
+			return transport_tpg.PendingStatusPollResult("waiting for observed generation to match")
 		}
 		for _, condition := range s.Status.Conditions {
 			if condition.Type == readyStatusType {
@@ -72,19 +72,19 @@ func PollCheckKnativeStatusFunc(knativeRestResponse map[string]interface{}) func
 				switch condition.Status {
 				case "True":
 					// Resource is ready
-					return SuccessPollResult()
+					return transport_tpg.SuccessPollResult()
 				case "Unknown":
 					// DomainMapping can enter a 'terminal' state where "Ready" status is "Unknown"
 					// but the resource is waiting for external verification of DNS records.
 					if condition.Reason == pendingCertificateReason {
-						return SuccessPollResult()
+						return transport_tpg.SuccessPollResult()
 					}
-					return PendingStatusPollResult(fmt.Sprintf("%s:%s", condition.Status, condition.Message))
+					return transport_tpg.PendingStatusPollResult(fmt.Sprintf("%s:%s", condition.Status, condition.Message))
 				case "False":
-					return ErrorPollResult(fmt.Errorf(`resource is in failed state "Ready:False", message: %s`, condition.Message))
+					return transport_tpg.ErrorPollResult(fmt.Errorf(`resource is in failed state "Ready:False", message: %s`, condition.Message))
 				}
 			}
 		}
-		return PendingStatusPollResult("no status yet")
+		return transport_tpg.PendingStatusPollResult("no status yet")
 	}
 }

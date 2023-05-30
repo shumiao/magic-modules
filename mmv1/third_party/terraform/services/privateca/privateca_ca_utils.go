@@ -1,4 +1,4 @@
-package google
+package privateca
 
 import (
 	"fmt"

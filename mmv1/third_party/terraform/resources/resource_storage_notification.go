@@ -100,13 +100,13 @@ func resourceStorageNotificationCreate(d *schema.ResourceData, meta interface{})
 	bucket := d.Get("bucket").(string)
 
 	topicName := d.Get("topic").(string)
-	computedTopicName := getComputedTopicName("", topicName)
+	computedTopicName := pubsub.GetComputedTopicName("", topicName)
 	if computedTopicName != topicName {
 		project, err := tpgresource.GetProject(d, config)
 		if err != nil {
 			return err
 		}
-		computedTopicName = getComputedTopicName(project, topicName)
+		computedTopicName = pubsub.GetComputedTopicName(project, topicName)
 	}
 
 	storageNotification := &storage.Notification{

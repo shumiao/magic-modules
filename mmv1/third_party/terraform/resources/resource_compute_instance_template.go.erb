@@ -1168,7 +1168,7 @@ func expandInstanceTemplateGuestAccelerators(d tpgresource.TerraformResourceData
 }
 
 func expandInstanceTemplateResourcePolicies(d tpgresource.TerraformResourceData, dataKey string) []string {
-	return convertAndMapStringArr(d.Get(dataKey).([]interface{}), tpgresource.GetResourceNameFromSelfLink)
+	return tpgresource.ConvertAndMapStringArr(d.Get(dataKey).([]interface{}), tpgresource.GetResourceNameFromSelfLink)
 }
 
 func resourceComputeInstanceTemplateCreate(d *schema.ResourceData, meta interface{}) error {

@@ -5724,7 +5724,7 @@ func containerClusterAddedScopesSuppress(k, old, new string, d *schema.ResourceD
 	}
 
 	for _, i := range combined {
-		if stringInSlice(tpgresource.ConvertStringArr(o.([]interface{})), i) {
+		if tpgresource.StringInSlice(tpgresource.ConvertStringArr(o.([]interface{})), i) {
 			continue
 		}
 

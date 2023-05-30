@@ -11,6 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/version"
 
+<% products.each do |product| -%>
+	"github.com/hashicorp/terraform-provider-google/google/services/<%= product[:definitions].name.downcase -%>"
+<% end -%>
+
 	<% unless version == 'ga' -%>
 	"github.com/hashicorp/terraform-provider-google/google/services/runtimeconfig"
 	<% end -%>
@@ -191,7 +195,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		"google_active_folder":                             DataSourceGoogleActiveFolder(),
 		"google_alloydb_locations":                         DataSourceAlloydbLocations(),
 		"google_alloydb_supported_database_flags":          DataSourceAlloydbSupportedDatabaseFlags(),
-		"google_artifact_registry_repository":              DataSourceArtifactRegistryRepository(),
+		"google_artifact_registry_repository":              artifactregistry.DataSourceArtifactRegistryRepository(),
 		"google_app_engine_default_service_account":        DataSourceGoogleAppEngineDefaultServiceAccount(),
 		"google_beyondcorp_app_connection":                 DataSourceGoogleBeyondcorpAppConnection(),
 		"google_beyondcorp_app_connector":                  DataSourceGoogleBeyondcorpAppConnector(),
@@ -342,6 +346,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 		<%
 		products.each do |product|
 			product_definition = product[:definitions]
+			service = product_definition.name.downcase
 			config = product[:overrides]
 			sorted =  product_definition.objects.sort_by { |obj| obj.name }
 			sorted.each do |object|
@@ -355,7 +360,7 @@ func DatasourceMapWithErrors() (map[string]*schema.Resource, error) {
 			(iam_policy.min_version && iam_policy.min_version < version)
 			iam_class_name = product_definition.name + object.name
 	-%>
-		"<%= terraform_name -%>_iam_policy":               tpgiamresource.DataSourceIamPolicy(<%= iam_class_name -%>IamSchema, <%= iam_class_name -%>IamUpdaterProducer),
+		"<%= terraform_name -%>_iam_policy":               tpgiamresource.DataSourceIamPolicy(<%= service -%>.<%= iam_class_name -%>IamSchema, <%= service -%>.<%= iam_class_name -%>IamUpdaterProducer),
 	<%
 		end # unless iam_policy.nil? || iam_policy.exclude
 		end   # product_definition.objects.each do
@@ -417,6 +422,7 @@ func ResourceMapWithErrors() (map[string]*schema.Resource, error) {
 <%
 products.each do |product|
   product_definition = product[:definitions]
+  service = product_definition.name.downcase
   config = product[:overrides]
   sorted =  product_definition.objects.sort_by { |obj| obj.name }
   sorted.each do |object|
@@ -425,7 +431,7 @@ products.each do |product|
 	terraform_name = object.legacy_name || "google_#{tf_product}_#{object.name.underscore}"
 -%>
 <% 	unless object&.exclude_resource -%>
-	"<%= terraform_name -%>": Resource<%= product_definition.name + object.name -%>(),
+	"<%= terraform_name -%>": <%= service -%>.Resource<%= product_definition.name + object.name -%>(),
 <%  end -%>
 <%
 	iam_policy = object&.iam_policy
@@ -433,9 +439,9 @@ products.each do |product|
 		(iam_policy.min_version && iam_policy.min_version < version)
 	  iam_class_name = product_definition.name + object.name
 -%>
-	"<%= terraform_name -%>_iam_binding":              tpgiamresource.ResourceIamBinding(<%= iam_class_name -%>IamSchema, <%= iam_class_name -%>IamUpdaterProducer, <%= iam_class_name -%>IdParseFunc),
-	"<%= terraform_name -%>_iam_member":               tpgiamresource.ResourceIamMember(<%= iam_class_name -%>IamSchema, <%= iam_class_name -%>IamUpdaterProducer, <%= iam_class_name -%>IdParseFunc),
-	"<%= terraform_name -%>_iam_policy":               tpgiamresource.ResourceIamPolicy(<%= iam_class_name -%>IamSchema, <%= iam_class_name -%>IamUpdaterProducer, <%= iam_class_name -%>IdParseFunc),
+	"<%= terraform_name -%>_iam_binding":              tpgiamresource.ResourceIamBinding(<%= service -%>.<%= iam_class_name -%>IamSchema, <%= service -%>.<%= iam_class_name -%>IamUpdaterProducer, <%= service -%>.<%= iam_class_name -%>IdParseFunc),
+	"<%= terraform_name -%>_iam_member":               tpgiamresource.ResourceIamMember(<%= service -%>.<%= iam_class_name -%>IamSchema, <%= service -%>.<%= iam_class_name -%>IamUpdaterProducer, <%= service -%>.<%= iam_class_name -%>IdParseFunc),
+	"<%= terraform_name -%>_iam_policy":               tpgiamresource.ResourceIamPolicy(<%= service -%>.<%= iam_class_name -%>IamSchema, <%= service -%>.<%= iam_class_name -%>IamUpdaterProducer, <%= service -%>.<%= iam_class_name -%>IdParseFunc),
 <%
 	end # unless iam_policy.nil? || iam_policy.exclude
   end   # product_definition.objects.each do

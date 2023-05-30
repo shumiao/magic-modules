@@ -1,4 +1,4 @@
-package google
+package compute
 
 import (
 	"fmt"
@@ -151,7 +151,7 @@ func findInstanceName(d *schema.ResourceData, config *transport_tpg.Config) (str
 
 func PollCheckInstanceConfigDeleted(resp map[string]interface{}, respErr error) transport_tpg.PollResult {
 	if respErr != nil {
-		return ErrorPollResult(respErr)
+		return transport_tpg.ErrorPollResult(respErr)
 	}
 
 	// Nested object 404 appears as nil response
@@ -163,7 +163,7 @@ func PollCheckInstanceConfigDeleted(resp map[string]interface{}, respErr error) 
 	// Read status
 	status := resp["status"].(string)
 	if status == "DELETING" {
-		return PendingStatusPollResult("Still deleting")
+		return transport_tpg.PendingStatusPollResult("Still deleting")
 	}
-	return ErrorPollResult(fmt.Errorf("Expected PerInstanceConfig to be deleting but status is: %s", status))
+	return transport_tpg.ErrorPollResult(fmt.Errorf("Expected PerInstanceConfig to be deleting but status is: %s", status))
 }

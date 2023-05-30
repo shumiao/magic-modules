@@ -161,7 +161,7 @@ func flattenKmsCryptoKeyVersionVersion(v interface{}, d *schema.ResourceData) in
 	parts := strings.Split(v.(string), "/")
 	version := parts[len(parts)-1]
 	// Handles the string fixed64 format
-	if intVal, err := StringToFixed64(version); err == nil {
+	if intVal, err := tpgresource.StringToFixed64(version); err == nil {
 		return intVal
 	} // let terraform core handle it if we can't convert the string to an int.
 	return v
