@@ -3570,6 +3570,44 @@ func TestAccContainerCluster_withGatewayApiConfig(t *testing.T) {
 	})
 }
 
+func TestAccContainerCluster_withFleet(t *testing.T) {
+        t.Parallel()
+        clusterName := fmt.Sprintf("tf-test-cluster-%s", RandString(t, 10))
+        pid := getTestProjectFromEnv()
+
+        vcrTest(t, resource.TestCase{
+                PreCheck:     func() { testAccPreCheck(t) },
+                Providers:    testAccProviders,
+                CheckDestroy: testAccCheckContainerClusterDestroyProducer(t),
+                Steps: []resource.TestStep{
+                        {
+                                Config: testAccContainerCluster_withFleetEnabled(pid, clusterName),
+                        },
+                        {
+                                ResourceName:            "google_container_cluster.with_fleet",
+                                ImportState:             true,
+                                ImportStateVerify:       true,
+                        },
+                        {
+                                Config: testAccContainerCluster_updateFleet(pid, clusterName, false),
+                        },
+                        {
+                                ResourceName:            "google_container_cluster.with_fleet",
+                                ImportState:             true,
+                                ImportStateVerify:       true,
+                        },
+                        {
+                                Config: testAccContainerCluster_updateFleet(pid, clusterName, true),
+                        },
+                        {
+                                ResourceName:            "google_container_cluster.with_fleet",
+                                ImportState:             true,
+                                ImportStateVerify:       true,
+                        },
+                },
+        })
+}
+
 <% unless version == 'ga' -%>
 func TestAccContainerCluster_withTPUConfig(t *testing.T) {
 	t.Parallel()
