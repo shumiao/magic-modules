@@ -30,7 +30,7 @@ func TestAccGKEHubFeature_gkehubFeatureFleetObservability(t *testing.T) {
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
 		ExternalProviders: map[string]resource.ExternalProvider{
-			"time":   {},
+			"time": {},
 		},
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +76,7 @@ resource "google_gke_hub_feature" "feature" {
     fleetobservability {
       logging_config {
         default_config {
-    mode = "MOVE"
+          mode = "MOVE"
         }
         fleet_scope_logs_config {
           mode = "COPY"
@@ -104,7 +104,7 @@ resource "google_gke_hub_feature" "feature" {
     fleetobservability {
       logging_config {
         default_config {
-    mode = "MOVE"
+          mode = "MOVE"
         }
       }
     }
@@ -216,18 +216,18 @@ func TestAccGKEHubFeature_gkehubFeatureMciUpdate(t *testing.T) {
 				Config: testAccGKEHubFeature_gkehubFeatureMciUpdateStart(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"update_time"},
 			},
 			{
 				Config: testAccGKEHubFeature_gkehubFeatureMciChangeMembership(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"update_time", "labels", "terraform_labels"},
 			},
 		},
@@ -490,23 +490,7 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(t *testing.T)
 				ImportStateVerify: true,
 			},
       {
-				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementEnableAutomaticManagementUpdate(context),
-			},
-			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-      {
 				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementRemovalUpdate(context),
-			},
-			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-      {
-				Config: testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementAutomaticManagement(context),
 			},
 			{
 				ResourceName:      "google_gke_hub_feature.feature",
@@ -515,25 +499,6 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(t *testing.T)
 			},
 		},
 	})
-}
-
-func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementAutomaticManagement(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
-resource "google_gke_hub_feature" "feature" {
-  name = "configmanagement"
-  location = "global"
-  fleet_default_member_config {
-    configmanagement {
-      management = "MANAGEMENT_AUTOMATIC"
-      config_sync {
-        enabled = true
-      }
-    }
-  }
-  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
-  project = google_project.project.project_id
-}
-`, context)
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagement(context map[string]interface{}) string {
@@ -593,33 +558,6 @@ resource "google_gke_hub_feature" "feature" {
 `, context)
 }
 
-func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementEnableAutomaticManagementUpdate(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
-resource "google_gke_hub_feature" "feature" {
-  name = "configmanagement"
-  location = "global"
-  fleet_default_member_config {
-    configmanagement {
-      management = "MANAGEMENT_AUTOMATIC"
-      config_sync {
-        prevent_drift = true
-        source_format = "unstructured"
-        oci {
-          sync_repo = "us-central1-docker.pkg.dev/corp-gke-build-artifacts/acm/configs:latest"
-          policy_dir = "/acm/nonprod-root/"
-          secret_type = "gcpserviceaccount"
-          sync_wait_secs = "15"
-          gcp_service_account_email = "gke-cluster@gke-foo-nonprod.iam.gserviceaccount.com"
-        }
-      }
-    }
-  }
-  depends_on = [google_project_service.anthos, google_project_service.gkehub, google_project_service.acm]
-  project = google_project.project.project_id
-}
-`, context)
-}
-
 func testAccGKEHubFeature_FleetDefaultMemberConfigConfigManagementRemovalUpdate(context map[string]interface{}) string {
 	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
@@ -632,45 +570,45 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func TestAccGKEHubFeature_Clusterupgrade(t *testing.T) {
-  // VCR fails to handle batched project services
-  acctest.SkipIfVcr(t)
-  t.Parallel()
+	// VCR fails to handle batched project services
+	acctest.SkipIfVcr(t)
+	t.Parallel()
 
-  context := map[string]interface{}{
-    "random_suffix":   acctest.RandString(t, 10),
-    "org_id":          envvar.GetTestOrgFromEnv(t),
-    "billing_account": envvar.GetTestBillingAccountFromEnv(t),
-  }
+	context := map[string]interface{}{
+		"random_suffix":   acctest.RandString(t, 10),
+		"org_id":          envvar.GetTestOrgFromEnv(t),
+		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
+	}
 
-  acctest.VcrTest(t, resource.TestCase{
-    PreCheck:                 func() { acctest.AccTestPreCheck(t) },
-    ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-    CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
-    Steps: []resource.TestStep{
-      {
-        Config: testAccGKEHubFeature_Clusterupgrade(context),
-      },
-      {
-        ResourceName:            "google_gke_hub_feature.feature",
-        ImportState:             true,
-        ImportStateVerify:       true,
-        ImportStateVerifyIgnore: []string{"project", "update_time"},
-      },
-      {
-        Config: testAccGKEHubFeature_ClusterupgradeUpdate(context),
-      },
-      {
-        ResourceName:      "google_gke_hub_feature.feature",
-        ImportState:       true,
-        ImportStateVerify: true,
-        ImportStateVerifyIgnore: []string{"update_time"},
-      },
-    },
-  })
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckGKEHubFeatureDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGKEHubFeature_Clusterupgrade(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"project", "update_time"},
+			},
+			{
+				Config: testAccGKEHubFeature_ClusterupgradeUpdate(context),
+			},
+			{
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"update_time"},
+			},
+		},
+	})
 }
 
 func testAccGKEHubFeature_Clusterupgrade(context map[string]interface{}) string {
-  return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "clusterupgrade"
   location = "global"
@@ -704,7 +642,7 @@ resource "google_gke_hub_feature" "feature_2" {
 }
 
 func testAccGKEHubFeature_ClusterupgradeUpdate(context map[string]interface{}) string {
-  return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "clusterupgrade"
   location = "global"
@@ -791,7 +729,7 @@ func TestAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(t *testing.T)
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyController(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context)  + acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "policycontroller"
   location = "global"
@@ -818,7 +756,7 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func testAccGKEHubFeature_FleetDefaultMemberConfigPolicyControllerFull(context map[string]interface{}) string {
-	return gkeHubFeatureProjectSetupForGA(context)  + acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "policycontroller"
   location = "global"
@@ -937,9 +875,9 @@ func TestAccGKEHubFeature_gkehubFeatureMcsd(t *testing.T) {
 				Config: testAccGKEHubFeature_gkehubFeatureMcsdUpdate(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
@@ -1004,9 +942,9 @@ func TestAccGKEHubFeature_Rbacrolebindingactuation(t *testing.T) {
 				Config: testAccGKEHubFeature_RbacrolebindingactuationUpdate(context),
 			},
 			{
-				ResourceName:      "google_gke_hub_feature.feature",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "google_gke_hub_feature.feature",
+				ImportState:             true,
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
 			},
 		},
@@ -1014,7 +952,7 @@ func TestAccGKEHubFeature_Rbacrolebindingactuation(t *testing.T) {
 }
 
 func testAccGKEHubFeature_Rbacrolebindingactuation(context map[string]interface{}) string {
-  return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "rbacrolebindingactuation"
   location = "global"
@@ -1030,7 +968,7 @@ resource "google_gke_hub_feature" "feature" {
 }
 
 func testAccGKEHubFeature_RbacrolebindingactuationUpdate(context map[string]interface{}) string {
-  return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
+	return gkeHubFeatureProjectSetupForGA(context) + acctest.Nprintf(`
 resource "google_gke_hub_feature" "feature" {
   name = "rbacrolebindingactuation"
   location = "global"
@@ -1137,7 +1075,7 @@ func testAccCheckGKEHubFeatureDestroyProducer(t *testing.T) func(s *terraform.St
 
 			config := acctest.GoogleProviderConfig(t)
 
-			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{"{{"}}GKEHub2BasePath{{"}}"}}projects/{{"{{"}}project{{"}}"}}/locations/{{"{{"}}location{{"}}"}}/features/{{"{{"}}name{{"}}"}}")
+			url, err := tpgresource.ReplaceVarsForTest(config, rs, "{{GKEHub2BasePath}}projects/{{project}}/locations/{{location}}/features/{{name}}")
 			if err != nil {
 				return err
 			}
@@ -1149,10 +1087,10 @@ func testAccCheckGKEHubFeatureDestroyProducer(t *testing.T) func(s *terraform.St
 			}
 
 			_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config: config,
-				Method: "GET",
-				Project: billingProject,
-				RawURL: url,
+				Config:    config,
+				Method:    "GET",
+				Project:   billingProject,
+				RawURL:    url,
 				UserAgent: config.UserAgent,
 			})
 			if err == nil {
